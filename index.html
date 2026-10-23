@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Club Management Portal</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#203b2c}
+header{background:#123b2a;color:white;padding:22px 5%}
+header h1{margin:0 0 8px} header p{margin:0;color:#d5f5e3}
+.wrap{max-width:1100px;margin:25px auto;padding:0 18px}
+input,select,button{font:inherit;padding:12px;border-radius:8px;border:1px solid #cbd8d0}
+input{width:100%;margin:8px 0 18px}
+button{cursor:pointer;background:#17633e;color:white;border:0}
+.controls{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.card,.panel{background:white;border:1px solid #d4ded8;border-radius:14px;padding:18px}
+.card h3{margin-top:0;color:#17633e}.tag{background:#e2f3e8;padding:6px 10px;border-radius:20px;display:inline-block}
+.secondary{background:#e7eee9;color:#345542;border:1px solid #aabbb0;margin-left:8px}
+.hidden{display:none}#message{font-weight:bold;color:#17633e}
+@media(max-width:600px){.controls{grid-template-columns:1fr}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header><h1>College Club Management Portal</h1><p>Discover clubs, explore activities, and become a member.</p></header>
+<main class="wrap">
+<h2>Explore College Clubs</h2>
+<div class="controls">
+<input id="search" placeholder="Search clubs by name or category">
+<select id="category"><option value="all">All categories</option><option>Arts</option><option>Science</option><option>Technology</option></select>
+</div>
+<section id="clubList" class="cards"></section>
+<section id="details" class="panel hidden" aria-live="polite"></section>
+<section class="panel" style="margin-top:22px">
+<h2>Member Registration</h2>
+<form id="registerForm">
+<label>Full name</label><input id="name" required placeholder="Enter your full name">
+<label>College email</label><input id="email" type="email" required placeholder="name@example.edu">
+<label>Register number</label><input id="regno" required placeholder="Enter register number">
+<button type="submit">Validate and Register</button>
+</form><p id="message" role="status"></p>
+</section>
+</main>
+<script>
+const clubs=[
+{id:1,name:"Arts Club",category:"Arts",description:"Creative activities, drawing and cultural events.",coordinator:"Faculty Coordinator",meeting:"Wednesday, 3:00 PM",members:["Anu","Priya"]},
+{id:2,name:"Science Club",category:"Science",description:"Experiments, science talks and exhibitions.",coordinator:"Faculty Coordinator",meeting:"Thursday, 2:30 PM",members:["Kavin","Meena"]},
+{id:3,name:"Coding Club",category:"Technology",description:"Programming practice, hackathons and projects.",coordinator:"Faculty Coordinator",meeting:"Friday, 3:00 PM",members:["Arun","Nila"]}
+];
+const joined=new Set(),list=document.getElementById("clubList"),details=document.getElementById("details");
+function renderClubs(){
+ const q=document.getElementById("search").value.toLowerCase(),cat=document.getElementById("category").value;
+ const found=clubs.filter(x=>(x.name+" "+x.category).toLowerCase().includes(q)&&(cat==="all"||x.category===cat));
+ list.innerHTML=found.map(x=>`<article class="card"><span class="tag">${x.category}</span><h3>${x.name}</h3><p>${x.description}</p><button onclick="showDetails(${x.id})">View details</button></article>`).join("")||"<p>No clubs match your search.</p>";
+}
+function showDetails(id){
+ const x=clubs.find(v=>v.id===id);details.classList.remove("hidden");
+ details.innerHTML=`<h2>${x.name}</h2><p><b>Category:</b> ${x.category}</p><p>${x.description}</p><p><b>Coordinator:</b> ${x.coordinator}</p><p><b>Meeting:</b> ${x.meeting}</p><p><b>Members:</b> ${x.members.join(", ")}</p><p><b>Status:</b> ${joined.has(id)?"Joined":"Not joined"}</p><button onclick="joinClub(${id})">Join club</button><button class="secondary" onclick="leaveClub(${id})">Leave club</button>`;
+}
+function joinClub(id){joined.add(id);showDetails(id)}
+function leaveClub(id){joined.delete(id);showDetails(id)}
+document.getElementById("search").addEventListener("input",renderClubs);
+document.getElementById("category").addEventListener("change",renderClubs);
+document.getElementById("registerForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const name=document.getElementById("name").value.trim(),email=document.getElementById("email").value.trim(),regno=document.getElementById("regno").value.trim();
+ if(!name||!email||!regno){document.getElementById("message").textContent="Please complete all fields.";return}
+ document.getElementById("message").textContent=`Registration validated for ${name}. (Demo only)`;e.target.reset();
+});
+renderClubs();
+</script>
+</body>
+</html>
